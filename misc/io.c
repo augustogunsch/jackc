@@ -93,9 +93,9 @@ bool isdir(char* f, int len) {
 
 char* getoutname(char* fullname, int len) {
 	char* trimmed = trimstr(fullname, len, 4);
-	int sz = sizeof(char) * (len);
+	int sz = sizeof(char) * (len-1);
 	char* outname = (char*)malloc(sz);
-	snprintf(outname, sz, "%sasm", trimmed);
+	snprintf(outname, sz, "%svm", trimmed);
 	free(trimmed);
 	return outname;
 }

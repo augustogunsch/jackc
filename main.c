@@ -57,19 +57,19 @@ int main(int argc, char* argv[]) {
 	actonunits(head, vmtranslateunit);
 
 	currunit = head;
+	FILE* output = fopen("out.asm", "w");
 	while(currunit != NULL) {
-		FILE* output = fopen(currunit->file->outname, "w");
 		if(output == NULL) {
 			eprintf("%s", strerror(errno));
 			exit(1);
 		}
 
 		printstrlist(currunit->asmlns, output);
-		fclose(output);
 		COMPILEUNIT* next = currunit->next;
 		freeunit(currunit);
 		currunit = next;
 	}
+	fclose(output);
 
 	freecompiler(compiler);
 	freetree(headclass);
