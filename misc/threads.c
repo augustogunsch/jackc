@@ -21,16 +21,13 @@ void* compileunit(void* input) {
 }
 
 char* getclassname(char* filename) {
-	int count = 0;
-	int len = strlen(filename);
+	int len = strlen(filename) - 1;
 
-	for(int i = len-1; i >= 0; i--)
-		if(filename[i] == '.') {
-			count = i;
+	for(len = len; len >= 0; len--)
+		if(filename[len] == '.')
 			break;
-		}
 
-	int sz = sizeof(char) * (len - count);
+	int sz = sizeof(char) * (len + 1);
 	char* classname = (char*)malloc(sz);
 	snprintf(classname, sz, "%s", filename); // legitimately needs to be snprintf
 	return classname;
