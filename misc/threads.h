@@ -14,7 +14,7 @@ typedef struct unit {
 	PARSER* parser;
 	CLASS* parsed;
 	COMPILER* compiler;
-	STRINGLIST* asmlns;
+	ASMBLK* asmlns;
 	LINEBLOCK* compiled;
 	VMTRANSLATOR* vmtranslator;
 	struct unit* next;

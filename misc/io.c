@@ -75,9 +75,9 @@ bool isdotjack(char* f, int len) {
 	return strcmp(strtail(f, len, strlen(ext)), ext) == 0;
 }
 
-bool isdir(char* f, int len) {
+bool isdir(char* f) {
 	bool readsmt = false;
-	for(int i = len-1; i >= 0; i--) {
+	for(int i = strlen(f)-1; i >= 0; i--) {
 		if(f[i] == '.') {
 			if(readsmt)
 				return false;
@@ -160,10 +160,7 @@ FILELIST* getsinglefile(char* file) {
 }
 
 FILELIST* getfiles(char* input) {
-	int inplen = strlen(input);
-	bool isitdir = isdir(input, inplen);
-
-	if(isitdir)
+	if(isdir(input))
 		return getfilesfromdir(input);
 	else
 		return getsinglefile(input);
@@ -177,4 +174,21 @@ void freefilelist(FILELIST* fs) {
 	free(fs);
 	if(next != NULL)
 		freefilelist(next);
+}
+
+char* getouthack(char* input) {
+	char* out;
+	int inplen = strlen(input);
+	if(isdir(input)) {
+		char* name = getname(input, inplen);
+		int sz = (inplen + strlen(name) + 7) * sizeof(char);
+		out = (char*)malloc(sz);
+		sprintf(out, "%s/%s.hack", input, name);
+		free(name);
+	}
+	else {
+		out = heapstr(input, inplen);
+		out[inplen-4] = 'h';
+	}
+	return out;
 }

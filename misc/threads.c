@@ -93,7 +93,6 @@ void actonunits(COMPILEUNIT* units, void*(*fun)(void*)) {
 void freeunit(COMPILEUNIT* u) {
 	freeparser(u->parser);
 	freelnblk(u->compiled);
-	freestrlist(u->asmlns);
 	freevmtranslator(u->vmtranslator);
 	free(u);
 }

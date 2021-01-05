@@ -7,6 +7,7 @@
 #include "compiler.h"
 #include "io.h"
 #include "os.h"
+#include "assembler.h"
 
 int main(int argc, char* argv[]) {
 	if(argc < 2) {
@@ -53,25 +54,42 @@ int main(int argc, char* argv[]) {
 	}
 
 	actonunits(head, compileunit);
-
 	actonunits(head, vmtranslateunit);
 
-	currunit = head;
-	FILE* output = fopen("out.asm", "w");
+	ASMBLK* asmlns = head->asmlns;
+	currunit = head->next;
 	while(currunit != NULL) {
-		if(output == NULL) {
-			eprintf("%s", strerror(errno));
-			exit(1);
-		}
+		mergeasmblks(asmlns, currunit->asmlns);
+		currunit = currunit->next;
+	}
 
-		printstrlist(currunit->asmlns, output);
+	ASSEMBLER* assembler = mkassembler(asmlns->head);
+	preprocess(assembler);
+	assemble(assembler);
+
+
+	char* outname = getouthack(argv[1]);
+	FILE* output = fopen(outname, "w");
+	if(output == NULL) {
+		eprintf("%s", strerror(errno));
+		exit(1);
+	}
+
+	printstrlist(asmlns->head, output);
+	free(asmlns);
+
+	fclose(output);
+	free(outname);
+
+	currunit = head;
+	while(currunit != NULL) {
 		COMPILEUNIT* next = currunit->next;
 		freeunit(currunit);
 		currunit = next;
 	}
-	fclose(output);
 
 	freecompiler(compiler);
+	freeassembler(assembler);
 	freetree(headclass);
 	freefilelist(files);
 	return 0;

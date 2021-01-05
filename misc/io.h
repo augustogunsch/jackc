@@ -11,4 +11,5 @@ typedef struct flist {
 
 FILELIST* getfiles(char* input);
 void freefilelist(FILELIST* fs);
+char* getouthack(char* input);
 #endif

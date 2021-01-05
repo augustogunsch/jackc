@@ -17,7 +17,6 @@ char* tpushlns[] = {
 	"",
 	"",
 	"",
-	"",
 	"A=D+A",
 	"D=M",
 	"@SP",
@@ -30,7 +29,6 @@ mktemplate(tpush, tpushlns);
 
 char* tpushconslns[] = {
 	"",
-	"",
 	"D=A",
 	"@SP",
 	"A=M",
@@ -41,7 +39,6 @@ char* tpushconslns[] = {
 mktemplate(tpushcons, tpushconslns);
 
 char* tpushstatlns[] = {
-	"",
 	"",
 	"D=M",
 	"@SP",
@@ -60,7 +57,6 @@ char* tpoplns[] = {
 	"",
 	"",
 	"",
-	"",
 	"D=D+A",
 	"@R13",
 	"M=D",
@@ -74,7 +70,6 @@ char* tpoplns[] = {
 mktemplate(tpop, tpoplns);
 
 char* tpopstatlns[] = {
-	"",
 	"@SP",
 	"AM=M-1",
 	"D=M",
@@ -88,7 +83,6 @@ mktemplate(tpoptemp, tpopstatlns);
 mktemplate(tpoppointer, tpopstatlns);
 
 char* tarithlns[] = {
-	"",
 	"@SP",
 	"AM=M-1",
 	"D=M",
@@ -98,7 +92,6 @@ char* tarithlns[] = {
 mktemplate(tarith, tarithlns);
 
 char* tneglns[] = {
-	"",
 	"@SP",
 	"A=M-1",
 	"M=-M",
@@ -106,7 +99,6 @@ char* tneglns[] = {
 mktemplate(tneg, tneglns);
 
 char* tnotlns[] = {
-	"",
 	"@SP",
 	"A=M-1",
 	"M=!M",
@@ -114,7 +106,6 @@ char* tnotlns[] = {
 mktemplate(tnot, tnotlns);
 
 char* tcomplns[] = {
-	"",
 	"@SP",
 	"AM=M-1",
 	"D=M",
@@ -131,20 +122,17 @@ char* tcomplns[] = {
 mktemplate(tcomp, tcomplns);
 
 char* tlabellns[] = {
-	"",
 	""
 };
 mktemplate(tlabel, tlabellns);
 
 char* tgotolns[] = {
 	"",
-	"",
 	"0;JMP"
 };
 mktemplate(tgoto, tgotolns);
 
 char* tifgotolns[] = {
-	"",
 	"@SP",
 	"AM=M-1",
 	"D=M",
@@ -154,8 +142,6 @@ char* tifgotolns[] = {
 mktemplate(tifgoto, tifgotolns);
 
 char* tcallstartlns[] = {
-	"",
-	"",
 	"D=A",
 	"@SP",
 	"A=M",
@@ -204,7 +190,6 @@ char* tframevarslns[] = {
 mktemplate(tframevars, tframevarslns);
 
 char* tfunctionlns[] = {
-	"",
 	""
 };
 mktemplate(tfunction, tfunctionlns);
@@ -219,7 +204,6 @@ char* tfunctionpushlns[] = {
 mktemplate(tfunctionpush, tfunctionpushlns);
 
 char* tstartreturnlns[] = {
-	"",
 	"@LCL",
 	"D=M",
 	"@5",

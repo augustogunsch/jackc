@@ -12,9 +12,14 @@ typedef struct {
 	int retind;
 } VMTRANSLATOR;
 
+typedef struct {
+	STRINGLIST* head;
+	STRINGLIST* tail;
+} ASMBLK;
 
-STRINGLIST* translatevm(VMTRANSLATOR* t);
+ASMBLK* translatevm(VMTRANSLATOR* t);
 VMTRANSLATOR* mkvmtranslator(char* classname, LINEBLOCK* vmlines);
 void freevmtranslator(VMTRANSLATOR* t);
+void mergeasmblks(ASMBLK* a, ASMBLK* b);
 
 #endif

@@ -5,11 +5,6 @@
 #include "util.h"
 #define eq(translator, index, str) !strcmp(translator->currln->tokens[index], str)
 
-typedef struct {
-	STRINGLIST* head;
-	STRINGLIST* tail;
-} ASMBLK;
-
 STRINGLIST* asmln(char* content) {
 	STRINGLIST* ln = (STRINGLIST*)malloc(sizeof(STRINGLIST));
 	ln->content = content;
@@ -66,26 +61,6 @@ char* dotat(VMTRANSLATOR* t, char* name, char* n) {
 	sprintf(atstr, "@%s.%s", name, n);
 	togarbage(t, atstr);
 	return atstr;
-}
-
-char* comment(VMTRANSLATOR* t) {
-	int sz = (4 + strlen(t->currln->tokens[0])) * sizeof(char);
-	for(int i = 1; i < t->currln->count; i++)
-		sz += (1 + strlen(t->currln->tokens[i])) * sizeof(char);
-
-	char* com = (char*)malloc(sz);
-	if(t->currln->count == 1)
-		sprintf(com, "// %s", t->currln->tokens[0]);
-	else if(t->currln->count == 2)
-		sprintf(com, "// %s %s", t->currln->tokens[0],
-				t->currln->tokens[1]);
-	else if(t->currln->count == 3)
-		sprintf(com, "// %s %s %s", t->currln->tokens[0],
-				t->currln->tokens[1],
-				t->currln->tokens[2]);
-	
-	togarbage(t, com);
-	return com;
 }
 
 char* switchsegment(VMTRANSLATOR* t) {
@@ -154,13 +129,6 @@ ASMBLK* copytemplate(TEMPLATE* t) {
 	return blk;
 }
 
-ASMBLK* mkasmlns(VMTRANSLATOR* t, TEMPLATE* tp) {
-	// instruction comment
-	tp->items[0] = comment(t);
-	
-	return copytemplate(tp);
-}
-
 void mergeasmblks(ASMBLK* a, ASMBLK* b) {
 	a->tail->next = b->head;
 	a->tail = b->tail;
@@ -173,47 +141,47 @@ void mergeasmblks(ASMBLK* a, ASMBLK* b) {
 
 ASMBLK* translatepushconst(VMTRANSLATOR* t) {
 	// @i
-	tpushcons.items[1] = at(t, t->currln->tokens[2]);
+	tpushcons.items[0] = at(t, t->currln->tokens[2]);
 
-	return mkasmlns(t, &tpushcons);
+	return copytemplate(&tpushcons);
 }
 
 ASMBLK* translatepushstatic(VMTRANSLATOR* t) {
 	// @classname.i
-	tpushstat.items[1] = dotat(t, t->classname, t->currln->tokens[2]);
+	tpushstat.items[0] = dotat(t, t->classname, t->currln->tokens[2]);
 
-	return mkasmlns(t, &tpushstat);
+	return copytemplate(&tpushstat);
 }
 
 ASMBLK* translatepushpointer(VMTRANSLATOR* t) {
 	// @THIS/@THAT
-	tpushpointer.items[1] = mkpointerind(t);
+	tpushpointer.items[0] = mkpointerind(t);
 
-	return mkasmlns(t, &tpushpointer);
+	return copytemplate(&tpushpointer);
 }
 
 ASMBLK* translatepushtemp(VMTRANSLATOR* t) {
 	// @5+i
-	tpushtemp.items[1] = mktempind(t);
+	tpushtemp.items[0] = mktempind(t);
 
-	return mkasmlns(t, &tpushtemp);
+	return copytemplate(&tpushtemp);
 }
 
 void pushpopcommon(VMTRANSLATOR* t, TEMPLATE* tp) {
 	// @segment
-	tp->items[1] = switchsegment(t);
+	tp->items[0] = switchsegment(t);
 	
 	// D=M
-	tp->items[2] = mkstr(t, "D=M");
+	tp->items[1] = mkstr(t, "D=M");
 
 	// @i
-	tp->items[3] = at(t, t->currln->tokens[2]);
+	tp->items[2] = at(t, t->currln->tokens[2]);
 }
 
 ASMBLK* translatepushgeneric(VMTRANSLATOR* t) {
 	pushpopcommon(t, &tpush);
 
-	return mkasmlns(t, &tpush);
+	return copytemplate(&tpush);
 }
 
 ASMBLK* translatepush(VMTRANSLATOR* t) {
@@ -235,7 +203,7 @@ ASMBLK* translatepopstatic(VMTRANSLATOR* t) {
 	// M=D
 	tpopstat.items[tpopstat.count-1] = mkstr(t, "M=D");
 
-	return mkasmlns(t, &tpopstat);
+	return copytemplate(&tpopstat);
 }
 
 ASMBLK* translatepoppointer(VMTRANSLATOR* t) {
@@ -245,7 +213,7 @@ ASMBLK* translatepoppointer(VMTRANSLATOR* t) {
 	// M=D
 	tpoppointer.items[tpoppointer.count-1] = mkstr(t, "M=D");
 
-	return mkasmlns(t, &tpoppointer);
+	return copytemplate(&tpoppointer);
 }
 
 ASMBLK* translatepoptemp(VMTRANSLATOR* t) {
@@ -254,13 +222,13 @@ ASMBLK* translatepoptemp(VMTRANSLATOR* t) {
 
 	tpoptemp.items[tpoptemp.count-1] = mkstr(t, "M=D");
 
-	return mkasmlns(t, &tpoptemp);
+	return copytemplate(&tpoptemp);
 }
 
 ASMBLK* translatepopgeneric(VMTRANSLATOR* t) {
 	pushpopcommon(t, &tpop);
 	
-	return mkasmlns(t, &tpop);
+	return copytemplate(&tpop);
 }
 
 ASMBLK* translatepop(VMTRANSLATOR* t) {
@@ -281,7 +249,7 @@ ASMBLK* translatepop(VMTRANSLATOR* t) {
 ASMBLK* translatearith(VMTRANSLATOR* t, char* op) {
 	tarith.items[tarith.count-1] = mkstr(t, op);
 
-	return mkasmlns(t, &tarith);
+	return copytemplate(&tarith);
 }
 
 ASMBLK* translatecomp(VMTRANSLATOR* t, char* op) {
@@ -301,7 +269,7 @@ ASMBLK* translatecomp(VMTRANSLATOR* t, char* op) {
 	// (label)
 	tcomp.items[tcomp.count-1] = enclosingparenthesis(t, label, labellen);
 
-	return mkasmlns(t, &tcomp);
+	return copytemplate(&tcomp);
 }
 
 /* END OPERATIONS */
@@ -310,25 +278,25 @@ ASMBLK* translatelabel(VMTRANSLATOR* t) {
 	// (classname$label)
 	tlabel.items[tlabel.count-1] = mklab(t);
 
-	return mkasmlns(t, &tlabel);
+	return copytemplate(&tlabel);
 }
 
 ASMBLK* translategoto(VMTRANSLATOR* t) {
 	// @label
 	tgoto.items[tgoto.count-2] = mkgotolab(t);
 
-	return mkasmlns(t, &tgoto);
+	return copytemplate(&tgoto);
 }
 
 ASMBLK* translateifgoto(VMTRANSLATOR* t) {
 	// @label
 	tifgoto.items[tifgoto.count-2] = mkgotolab(t);
 
-	return mkasmlns(t, &tifgoto);
+	return copytemplate(&tifgoto);
 }
 
 ASMBLK* translatereturn(VMTRANSLATOR* t) {
-	ASMBLK* blk = mkasmlns(t, &tstartreturn);
+	ASMBLK* blk = copytemplate(&tstartreturn);
 	
 	for(int i = tframevars.count-1; i >= 0; i--) {
 		tretpop.items[tretpop.count-2] = tframevars.items[i];
@@ -344,8 +312,8 @@ ASMBLK* translatefunction(VMTRANSLATOR* t) {
 	t->cmpind = 0;
 
 	// (funcname)
-	tfunction.items[1] = mklab(t);
-	ASMBLK* blk = mkasmlns(t, &tfunction);
+	tfunction.items[0] = mklab(t);
+	ASMBLK* blk = copytemplate(&tfunction);
 
 	// repeat nVars times:
 	int nlocals = atoi(t->currln->tokens[2]);
@@ -359,7 +327,7 @@ ASMBLK* translatefunction(VMTRANSLATOR* t) {
 ASMBLK* pushframe(VMTRANSLATOR* t, char* retlab, int retlablen, int* framesize) {
 	tcallstart.items[1] = atraw(t, retlab, retlablen);
 
-	ASMBLK* blk = mkasmlns(t, &tcallstart);
+	ASMBLK* blk = copytemplate(&tcallstart);
 
 	for(int i = 0; i < tframevars.count; i++) {
 		tcallpush.items[0] = tframevars.items[i];
@@ -408,9 +376,9 @@ ASMBLK* translateln(VMTRANSLATOR* t) {
 		return translatearith(t, "M=D|M");
 
 	if(eq(t, 0, "neg"))
-		return mkasmlns(t, &tneg);
+		return copytemplate(&tneg);
 	if(eq(t, 0, "not"))
-		return mkasmlns(t, &tnot);
+		return copytemplate(&tnot);
 
 	if(eq(t, 0, "eq"))
 		return translatecomp(t, "EQ");
@@ -433,15 +401,13 @@ ASMBLK* translateln(VMTRANSLATOR* t) {
 	return translatecall(t);
 }
 
-STRINGLIST* translatevm(VMTRANSLATOR* t) {
+ASMBLK* translatevm(VMTRANSLATOR* t) {
 	ASMBLK* blk = copytemplate(&tbootstrap);
 	while(t->currln != NULL) {
 		mergeasmblks(blk, translateln(t));
 		t->currln = t->currln->next;
 	}
-	STRINGLIST* output = blk->head;
-	free(blk);
-	return output;
+	return blk;
 }
 
 VMTRANSLATOR* mkvmtranslator(char* classname, LINEBLOCK* vmlines) {
