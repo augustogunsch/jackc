@@ -6,7 +6,6 @@
 #include "parser.h"
 #include "compiler.h"
 #include "io.h"
-#include "os.h"
 #include "assembler.h"
 
 int main(int argc, char* argv[]) {

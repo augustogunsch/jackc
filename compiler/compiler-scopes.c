@@ -4,7 +4,6 @@
 #include <pthread.h>
 #include "compiler.h"
 #include "compiler-scopes.h"
-#include "os.h"
 
 typedef enum { local, staticseg, arg, fieldseg } MEMSEGMENT;
 char* memsegnames[] = { "local", "static", "argument", "this" };
@@ -115,7 +114,7 @@ CLASS* getclass(SCOPE* s, const char* name) {
 	}
 	if(s->previous != NULL)
 		return getclass(s->previous, name);
-	return getosclass(s->compiler->os, name);
+	return NULL;
 }
 
 SUBROUTDEC* getsubroutdecfromlist(SUBROUTDEC* start, char* name) {
@@ -175,14 +174,10 @@ SUBROUTDEC* getsubroutdecwithoutparent(SCOPE* s, SUBROUTCALL* call) {
 SUBROUTDEC* getsubroutdecfromcall(SCOPE* s, SUBROUTCALL* call, VAR** varret) {
 	SUBROUTDEC* d;
 	*varret = NULL;
-	if(call->parentname != NULL) {
-		d = getossubroutdec(s->compiler->os, call);
-		if(d == NULL)
-			d = getsubroutdecwithparent(s, call, varret);
-	}
-	else {
+	if(call->parentname != NULL)
+		d = getsubroutdecwithparent(s, call, varret);
+	else
 		d = getsubroutdecwithoutparent(s, call);
-	}
 	if(d == NULL)
 		notdeclared(call->name, call->debug);
 	return d;

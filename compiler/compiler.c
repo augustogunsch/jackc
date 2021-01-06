@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include "os.h"
 #include "compiler-structure.h"
 #include "compiler.h"
 
@@ -28,7 +27,6 @@ COMPILER* mkcompiler(CLASS* classes) {
 	c->globalscope->compiler = c;
 	c->globalscope->classes = classes;
 	c->classes = classes;
-	c->os = mkos();
 	pthread_mutex_init(&(c->ifmutex), NULL);
 	pthread_mutex_init(&(c->whilemutex), NULL);
 	pthread_mutex_init(&(c->staticmutex), NULL);
@@ -39,8 +37,6 @@ void freecompiler(COMPILER* c) {
 	pthread_mutex_destroy(&(c->ifmutex));
 	pthread_mutex_destroy(&(c->whilemutex));
 	pthread_mutex_destroy(&(c->staticmutex));
-	// to be continued
-	freeos(c->os);
 	freescope(c->globalscope);
 	free(c);
 }
